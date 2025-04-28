@@ -9,7 +9,7 @@ class TaskController {
             const { user_id, is_admin } = req.user;
 
             if (!is_admin) {
-                return res.status(403).json({
+                return res.status(200).json({
                     success: false,
                     error: "Нет прав для созданиыя задачи"
                 });
@@ -17,7 +17,7 @@ class TaskController {
 
             let course = await courseModel.getCourseById(course_id);
             if (!course) {
-                return res.status(403).json({
+                return res.status(200).json({
                     success: false,
                     error: "Курс не существует"
                 });
@@ -25,7 +25,7 @@ class TaskController {
 
             // Валидация полей
             if (!name || name.trim().length < 3 || name.trim().length > 256) {
-                return res.status(400).json({
+                return res.status(200).json({
                     success: false,
                     error: "Название задачи должно содержать минимум 3 символа и не быть больше 256 символов!",
                     error_field: "name"
@@ -33,15 +33,15 @@ class TaskController {
             }
 
             if (!text || text.trim().length < 10 || text.trim().length > 5000) {
-                return res.status(400).json({
+                return res.status(200).json({
                     success: false,
                     error: "Описание задачи должно содержать минимум 10 символов и не быть больше 5000 символов",
                     error_field: "text"
                 });
             }
 
-            if (!deadline || isNaN(Date.parse(deadline))) {
-                return res.status(400).json({
+            if (!deadline || isNaN(deadline)) {
+                return res.status(200).json({
                     success: false,
                     error: "Укажите корректную дату дедлайна",
                     error_field: "deadline"
@@ -50,14 +50,14 @@ class TaskController {
 
             const deadlineDate = new Date(deadline);
             if (deadlineDate <= new Date()) {
-                return res.status(400).json({
+                return res.status(200).json({
                     success: false,
                     error: "Дедлайн должен быть в будущем",
                     error_field: "deadline"
                 });
             }
 
-            const task = await TaskModel.addTask(course_id, name, text, user_id, deadline);
+            const task = await TaskModel.addTask(course_id, name, text, user_id, deadlineDate.toISOString());
 
             res.json({
                 success: true,
@@ -77,12 +77,12 @@ class TaskController {
 
     async UpdateTask(req, res) {
         try {
-            const { task_id } = req.params;
-            const { name, text, deadline } = req.body;
+
+            const { name, text, deadline, task_id } = req.body;
             const { user_id, is_admin } = req.user;
 
             if (!is_admin) {
-                return res.status(403).json({
+                return res.status(200).json({
                     success: false,
                     error: "Нет прав для редактирования этой задачи"
                 });
@@ -91,7 +91,7 @@ class TaskController {
             // Проверка существования задачи
             const existingTask = await TaskModel.getTaskById(task_id);
             if (!existingTask) {
-                return res.status(404).json({
+                return res.status(200).json({
                     success: false,
                     error: "Задача не найдена"
                 });
@@ -99,7 +99,7 @@ class TaskController {
 
             // Валидация полей
             if (!name || name.trim().length < 3 || name.trim().length > 256) {
-                return res.status(400).json({
+                return res.status(200).json({
                     success: false,
                     error: "Название задачи должно содержать минимум 3 символа и не быть больше 256 символов!",
                     error_field: "name"
@@ -107,15 +107,15 @@ class TaskController {
             }
 
             if (!text || text.trim().length < 10 || text.trim().length > 5000) {
-                return res.status(400).json({
+                return res.status(200).json({
                     success: false,
                     error: "Описание задачи должно содержать минимум 10 символов и не быть больше 5000 символов",
                     error_field: "text"
                 });
             }
 
-            if (deadline && isNaN(Date.parse(deadline))) {
-                return res.status(400).json({
+            if (deadline && isNaN(deadline)) {
+                return res.status(200).json({
                     success: false,
                     error: "Укажите корректную дату дедлайна",
                     error_field: "deadline"
@@ -124,7 +124,7 @@ class TaskController {
 
             const deadlineDate = new Date(deadline);
             if (deadlineDate <= new Date()) {
-                return res.status(400).json({
+                return res.status(200).json({
                     success: false,
                     error: "Дедлайн должен быть в будущем",
                     error_field: "deadline"
@@ -135,7 +135,7 @@ class TaskController {
                 task_id,
                 name || existingTask.name,
                 text || existingTask.text,
-                deadline || existingTask.deadline
+                deadlineDate.toISOString() || existingTask.deadline
             );
 
             res.json({
@@ -156,12 +156,12 @@ class TaskController {
 
     async DeleteTask(req, res) {
         try {
-            const { task_id } = req.params;
+            const { task_id } = req.body;
             const { user_id, is_admin } = req.user;
 
 
             if (!is_admin) {
-                return res.status(403).json({
+                return res.status(200).json({
                     success: false,
                     error: "Нет прав для удаления этой задачи"
                 });
@@ -169,7 +169,7 @@ class TaskController {
 
             const existingTask = await TaskModel.getTaskById(task_id);
             if (!existingTask) {
-                return res.status(404).json({
+                return res.status(200).json({
                     success: false,
                     error: "Задача не найдена"
                 });
@@ -228,21 +228,21 @@ class TaskController {
 
     async ChangeTaskStatus(req, res) {
         try {
-            const { task_id } = req.params;
-            const { status } = req.body;
+
+            const { status, task_id } = req.body;
             const { user_id } = req.user;
 
 
             const existingTask = await TaskModel.getTaskById(task_id);
             if (!existingTask) {
-                return res.status(404).json({
+                return res.status(200).json({
                     success: false,
                     error: "Задача не найдена"
                 });
             }
 
             if (!await courseMembers.isUserCourseMember(existingTask.course_id, user_id)){
-                return res.status(404).json({
+                return res.status(200).json({
                     success: false,
                     error: "Вы не являетесь участником курса"
                 });
@@ -250,7 +250,7 @@ class TaskController {
 
 
             if (status === undefined || isNaN(parseInt(status))) {
-                return res.status(400).json({
+                return res.status(200).json({
                     success: false,
                     error: "Укажите корректный статус",
                     error_field: "status"

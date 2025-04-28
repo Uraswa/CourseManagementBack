@@ -23,7 +23,7 @@ class courseModel extends Model{
             params.push(user.user_id);
         }
 
-        const result = await this.pool.query(query, [params]);
+        const result = await this.pool.query(query, params);
         return result.rows;
     }
 

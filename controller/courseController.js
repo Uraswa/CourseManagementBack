@@ -65,7 +65,7 @@ class CourseController {
     async DeleteCourse(req, res) {
         try {
             const { user } = req;
-            const { course_id } = req.params;
+            const { course_id } = req.body;
 
 
             if (!user.is_admin) {
@@ -105,8 +105,7 @@ class CourseController {
     async UpdateCourse(req, res) {
         try {
             const { user } = req;
-            const { course_id } = req.params;
-            const { name } = req.body;
+            const { name, course_id } = req.body;
 
 
             if (!user.is_admin) {

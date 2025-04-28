@@ -3,10 +3,10 @@ import Model from "../core/Model.js";
 
 class UserModel extends Model {
 
-    async createUser(email, password, activationLink) {
+    async createUser(firstname, surname, patronymic, email, password, activationLink) {
         let hashedPassword = await bcrypt.hash(password, 2304)
-        const query = "INSERT INTO users (email, password, activation_link) VALUES ($1, $2, $3) RETURNING * ";
-        const values = [email, hashedPassword, activationLink];
+        const query = "INSERT INTO users (firstname, surname, patronymic, email, password, activation_link) VALUES ($4, $5, $6, $1, $2, $3) RETURNING * ";
+        const values = [email, hashedPassword, activationLink, firstname, surname, patronymic];
         const result = await this.pool.query(query, values);
         return result.rows[0];
     }
@@ -19,7 +19,7 @@ class UserModel extends Model {
     }
 
     async authUser(email, password) {
-        const query = "SELECT user_id,password, is_admin FROM users WHERE email = $1 and is_activated = true"
+        const query = "SELECT firstname, surname, patronymic, user_id,password, is_admin FROM users WHERE email = $1 and is_activated = true"
         const values = [email];
         const result = await this.pool.query(query, values);
         if (!result.rows[0]) return undefined

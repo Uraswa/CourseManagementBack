@@ -1,6 +1,6 @@
 ﻿import pg from "pg";
 
-const {pool} = pg;
+const {Pool} = pg;
 class Model {
 
     static globalPool;
@@ -10,7 +10,7 @@ class Model {
     }
 
     static connect(){
-        Model.globalPool = new pool({
+        Model.globalPool = new Pool({
             user: 'nice',
             host: 'localhost',
             database: 'lr4',

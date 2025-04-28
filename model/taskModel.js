@@ -25,19 +25,16 @@ class TaskModel extends Model {
                     t.task_id,
                     t.name,
                     t.text,
+                    t.deadline AT TIME ZONE 'UTC' as deadline,
                     t.created_by,
-                    t.created_date,
-                    ut.status,
+                    t.created_date AT TIME ZONE 'UTC' as created_date,
+                    CASE WHEN ut.status IS NULL THEN 0 ELSE ut.status END,
                     ut.last_changed_status
                    FROM tasks t`;
 
         let params = [];
-        if (!user.is_admin) {
-            query += ` JOIN user_to_task ut ON ut.task_id = t.task_id AND ut.user_id = $${params.length + 1}`;
-            params.push(user.user_id);
-        } else {
-            query += ` LEFT JOIN user_to_task ut ON ut.task_id = t.task_id`;
-        }
+        query += ` LEFT JOIN user_to_task ut ON ut.task_id = t.task_id AND ut.user_id = $${params.length + 1}`;
+        params.push(user.user_id);
 
         query += ` WHERE t.course_id = $${params.length + 1} `
         params.push(course_id.toString());

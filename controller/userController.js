@@ -18,11 +18,11 @@ class UserController {
         let createdUserId = -1;
 
         try {
-            const {email, password, nickname} = req.body;
+            const {email, password, firstname, surname, patronymic} = req.body;
             if (!email || !password) {
                 return res.status(200).json({
                     success: false,
-                    error: 'email, nickname and password are required'
+                    error: 'email, фамилия, имя и пароль обязательны'
                 });
             }
 
@@ -42,11 +42,27 @@ class UserController {
                 });
             }
 
-            if (!nickname || nickname > 25) {
+            if (!firstname || firstname.length > 25) {
                 return res.status(200).json({
                     success: false,
-                    error: 'Название профиля должно быть не пустым и не длиннее 25 символов!',
-                    error_field: "nickname"
+                    error: 'Имя должно быть не пустым и не длиннее 25 символов!',
+                    error_field: "firstname"
+                });
+            }
+
+            if (!surname || surname.length > 25) {
+                return res.status(200).json({
+                    success: false,
+                    error: 'Фамилия должна быть не пустым и не длиннее 25 символов!',
+                    error_field: "surname"
+                });
+            }
+
+            if (patronymic.length > 25) {
+                return res.status(200).json({
+                    success: false,
+                    error: 'Отчество не должно быть длиннее 25 символов!',
+                    error_field: "surname"
                 });
             }
 
@@ -60,7 +76,7 @@ class UserController {
             }
 
             let activationLink = uuid.v4();
-            let user = await UserModel.createUser(email, password, activationLink);
+            let user = await UserModel.createUser(firstname, surname, patronymic, email, password, activationLink);
             if (!user) {
                 return res.status(200).json({
                     success: false,
@@ -70,7 +86,7 @@ class UserController {
 
             createdUserId = user.user_id;
 
-            await mailService.sendActivationMail(email, "http://localhost:9000/activation/" + activationLink)
+            await mailService.sendActivationMail(email, "http://localhost:3000/activation/" + activationLink)
             res.status(200).json({
                 success: true,
                 data: {}
@@ -115,7 +131,7 @@ class UserController {
             if (!user) {
                 return res.status(200).json({
                     success: false,
-                    error: 'Invalid credentials'
+                    error: 'Неправильный логин или пароль'
                 });
             }
 
@@ -233,7 +249,7 @@ class UserController {
             if (!user || !user.is_activated) {
                 return res.status(200).json({
                     success: false,
-                    error: 'User_not_found'
+                    error: 'Пользователь не найден'
                 });
             }
 
@@ -247,7 +263,7 @@ class UserController {
                 });
             }
 
-            await mailService.sendChangePasswordMail(email, "http://localhost:9000/changePassword/" + forgotPasswordLink);
+            await mailService.sendChangePasswordMail(email, "http://localhost:3000/changePassword/" + forgotPasswordLink);
             res.status(200).json({
                 success: true,
                 data: {}
@@ -269,7 +285,7 @@ class UserController {
             if (!password_change_token) {
                 return res.status(200).json({
                     success: false,
-                    error: 'User_not_found'
+                    error: 'Пользователь не найден'
                 });
             }
 
@@ -285,7 +301,7 @@ class UserController {
             if (!user || !user.is_activated) {
                 return res.status(200).json({
                     success: false,
-                    error: 'User_not_found'
+                    error: 'Пользователь не найден'
                 });
             }
 
@@ -317,6 +333,7 @@ class UserController {
             success: true,
             data: {
                 user_id: user.user_id,
+                is_admin: user.is_admin,
                 refreshToken: tokens.refreshToken,
                 accessToken: tokens.accessToken
             }

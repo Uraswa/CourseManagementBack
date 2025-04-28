@@ -35,8 +35,7 @@ class CourseMembersController {
     async updateCourseMembers(req, res) {
         try {
             const { user } = req;
-            const { course_id } = req.params;
-            const { updatedState } = req.body;
+            const { updatedState, course_id } = req.body;
 
             // Проверка прав (только для админов)
             if (!user.is_admin) {
