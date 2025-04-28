@@ -14,9 +14,9 @@ class TaskModel extends Model {
                        VALUES ($1, $2, $3)
                        ON CONFLICT (user_id, task_id) 
                        DO UPDATE SET status = $3, 
-                                    last_changed_status = now()
+                                    last_changed_status = $4
                        RETURNING *`;
-        const result = await this.pool.query(query, [user_id, task_id, status]);
+        const result = await this.pool.query(query, [user_id, task_id, status, new Date().toISOString()]);
         return result.rows[0];
     }
 

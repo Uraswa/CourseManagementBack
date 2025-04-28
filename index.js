@@ -11,6 +11,7 @@ import CourseController from "./controller/courseController.js";
 import CourseMembersController from "./controller/courseMembersController.js";
 import TaskController from "./controller/taskController.js";
 import notAuthMiddleware from "./middleware/not-auth-middleware.js";
+import UserToTaskController from "./controller/userToTaskController.js";
 
 Model.connect();
 
@@ -50,6 +51,8 @@ router.post("/updateTask", authMiddleware, TaskController.UpdateTask.bind(TaskCo
 router.post("/deleteTask", authMiddleware, TaskController.DeleteTask.bind(TaskController));
 router.get("/getTasks", authMiddleware, TaskController.GetTasks.bind(TaskController));
 router.post("/changeTaskStatus", authMiddleware, TaskController.ChangeTaskStatus.bind(TaskController));
+
+router.get("/getOutdatedReport", authMiddleware, UserToTaskController.GetOutdatedReport.bind(UserToTaskController));
 
 router.get('/health', (req, res) => res.status(200).send('OK'));
 
