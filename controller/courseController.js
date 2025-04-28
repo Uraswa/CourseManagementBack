@@ -1,6 +1,46 @@
 import courseModel from "../model/courseModel.js";
+import courseMembers from "../model/courseMembers.js";
 
 class CourseController {
+    
+    async GetCourseInfo(req, res) {
+        try {
+            const { user } = req;
+            const {course_id} = req.query
+
+            const course = await courseModel.getCourseById(course_id)
+            
+            if (!course) {
+                return res.status(200).json({
+                    success: false,
+                    error: "Курс не найден"
+                });
+            }
+
+
+            if (!user.is_admin && !await courseMembers.isUserCourseMember(course_id, user.user_id)){
+                return res.status(200).json({
+                    success: false,
+                    error: "Недостаточно прав"
+                });
+            }
+
+            res.json({
+                success: true,
+                data: {
+                    course
+                }
+            });
+
+        } catch (e) {
+            console.error(e);
+            res.status(200).json({
+                success: false,
+                error: "Unknown error"
+            });
+        }
+    }
+    
     async GetCourses(req, res) {
         try {
             const { user } = req;
@@ -15,7 +55,7 @@ class CourseController {
 
         } catch (e) {
             console.error(e);
-            res.status(500).json({
+            res.status(200).json({
                 success: false,
                 error: "Unknown error"
             });
@@ -29,7 +69,7 @@ class CourseController {
 
            
             if (!user.is_admin) {
-                return res.status(403).json({
+                return res.status(200).json({
                     success: false,
                     error: "Недостаточно прав для создания курса"
                 });
@@ -37,7 +77,7 @@ class CourseController {
 
 
             if (!name || name.trim().length < 3 || name.length > 40) {
-                return res.status(400).json({
+                return res.status(200).json({
                     success: false,
                     error: "Название курса должно содержать минимум 3 символа и не больше 40 символов!",
                     error_field: "name"
@@ -55,7 +95,7 @@ class CourseController {
 
         } catch (e) {
             console.error(e);
-            res.status(500).json({
+            res.status(200).json({
                 success: false,
                 error: "Unknown error"
             });
@@ -69,7 +109,7 @@ class CourseController {
 
 
             if (!user.is_admin) {
-                return res.status(403).json({
+                return res.status(200).json({
                     success: false,
                     error: "Недостаточно прав для удаления курса"
                 });
@@ -78,7 +118,7 @@ class CourseController {
 
             const existingCourse = await courseModel.getCourseById(course_id);
             if (!existingCourse) {
-                return res.status(404).json({
+                return res.status(200).json({
                     success: false,
                     error: "Курс не найден"
                 });
@@ -95,7 +135,7 @@ class CourseController {
 
         } catch (e) {
             console.error(e);
-            res.status(500).json({
+            res.status(200).json({
                 success: false,
                 error: "Unknown error"
             });
@@ -109,7 +149,7 @@ class CourseController {
 
 
             if (!user.is_admin) {
-                return res.status(403).json({
+                return res.status(200).json({
                     success: false,
                     error: "Недостаточно прав для обновления курса"
                 });
@@ -118,7 +158,7 @@ class CourseController {
 
             const existingCourse = await courseModel.getCourseById(course_id);
             if (!existingCourse) {
-                return res.status(404).json({
+                return res.status(200).json({
                     success: false,
                     error: "Курс не найден"
                 });
@@ -126,7 +166,7 @@ class CourseController {
 
 
             if (!name || name.trim().length < 3 || name.length > 40) {
-                return res.status(400).json({
+                return res.status(200).json({
                     success: false,
                     error: "Название курса должно содержать минимум 3 символа и не больше 40 символов!",
                     error_field: "name"
@@ -144,7 +184,7 @@ class CourseController {
 
         } catch (e) {
             console.error(e);
-            res.status(500).json({
+            res.status(200).json({
                 success: false,
                 error: "Unknown error"
             });

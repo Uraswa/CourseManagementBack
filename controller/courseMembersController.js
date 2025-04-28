@@ -1,4 +1,5 @@
 ﻿import courseMembers from "../model/courseMembers.js";
+import courseModel from "../model/courseModel.js";
 
 class CourseMembersController {
     async getCourseMembers(req, res) {
@@ -8,13 +9,13 @@ class CourseMembersController {
 
             // Проверка прав (только для админов)
             if (!user.is_admin) {
-                return res.status(403).json({
+                return res.status(200).json({
                     success: false,
                     error: "Недостаточно прав для просмотра участников курса"
                 });
             }
 
-            const members = await courseMembers.getCourseMembers(course_id);
+            const members = await courseMembers.getCourseMembersAndPotential(course_id);
 
             res.json({
                 success: true,
@@ -39,7 +40,7 @@ class CourseMembersController {
 
             // Проверка прав (только для админов)
             if (!user.is_admin) {
-                return res.status(403).json({
+                return res.status(200).json({
                     success: false,
                     error: "Недостаточно прав для редактирования участников курса"
                 });
@@ -47,11 +48,19 @@ class CourseMembersController {
 
             // Валидация входных данных
             if (!updatedState || typeof updatedState !== 'object') {
-                return res.status(400).json({
+                return res.status(200).json({
                     success: false,
                     error: "Неверный формат данных для обновления",
                     error_field: "updatedState"
                 });
+            }
+
+            let course = await courseModel.getCourseById(course_id);
+            if (!course) {
+                return res.status(200).json({
+                    success: false,
+                    error: "Курс не найден"
+                })
             }
 
             const result = await courseMembers.updateCourseMembers(course_id, updatedState);

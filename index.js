@@ -36,6 +36,7 @@ router.post("/changePassword",  notAuthMiddleware, UserController.changePassword
 router.get("/activateAccount",  notAuthMiddleware, UserController.activateAccount.bind(UserController));
 router.get("/refreshToken",  notAuthMiddleware, UserController.refreshToken.bind(UserController));
 
+router.get("/getCourseInfo", authMiddleware, CourseController.GetCourseInfo.bind(CourseController));
 router.get("/getCourses", authMiddleware, CourseController.GetCourses.bind(CourseController));
 router.post("/addCourse", authMiddleware, CourseController.AddCourse.bind(CourseController));
 router.post("/deleteCourse", authMiddleware, CourseController.DeleteCourse.bind(CourseController));
