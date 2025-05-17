@@ -17,7 +17,7 @@ class userToTaskModel extends Model {
                               LEFT JOIN user_to_task ut on ut.user_id = uc.user_id and ut.task_id = $1
                      WHERE t.task_id = $1
                        and t.deadline < now()
-                       and (ut.last_changed_status IS NULL
+                       and (ut.last_changed_status IS NULL or ut.status != 2
                          or ut.last_changed_status > t.deadline)`;
         let result = await this.pool.query(query, [task_id]);
         return result.rows;

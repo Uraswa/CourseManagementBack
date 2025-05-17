@@ -19,7 +19,8 @@ class MailService {
     }
 
     async sendActivationMail(to, link) {
-        if (!this.transporter) this.configureTransport();
+	link = link.replace('localhost:3000', process.env.API_URL); 
+       if (!this.transporter) this.configureTransport();
         await this.transporter.sendMail({
             from: process.env.SMTP_USER,
             to,
@@ -37,6 +38,7 @@ class MailService {
 
     async sendChangePasswordMail(to, link) {
         if (!this.transporter) this.configureTransport();
+link = link.replace('localhost:3000', process.env.API_URL); 
         await this.transporter.sendMail({
             from: process.env.SMTP_USER,
             to,

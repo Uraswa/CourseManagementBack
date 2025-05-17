@@ -29,6 +29,8 @@ app.use(cors({
 const router = express.Router()
 app.use(router);
 
+app.disable('etag');
+
 router.post("/login", UserController.loginUser.bind(UserController));
 router.post("/createUser",  notAuthMiddleware, UserController.createUser.bind(UserController));
 router.post("/forgotPassword",  notAuthMiddleware, UserController.forgotPassword.bind(UserController));
